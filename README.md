@@ -207,6 +207,78 @@ Authorization: Bearer <token>
 }
 ```
 
+#### Update user email
+
+```http
+PATCH /auth/me/email
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "email": "newemail@example.com"
+}
+```
+
+**Response (200):**
+```json
+{
+  "message": "Email updated successfully"
+}
+```
+
+**Error Responses:**
+- `400` - Invalid email format
+- `409` - Email already in use
+
+#### Update user password
+
+```http
+PATCH /auth/me/password
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "current_password": "current_password123",
+  "new_password": "new_password456"
+}
+```
+
+**Response (200):**
+```json
+{
+  "message": "Password updated successfully"
+}
+```
+
+**Error Responses:**
+- `400` - Password validation failed (minimum 8 characters, must contain letters and digits)
+- `401` - Current password is incorrect
+
+#### Delete user account
+
+```http
+DELETE /auth/me
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "password": "your_password123"
+}
+```
+
+**Response (200):**
+```json
+{
+  "message": "Account deleted successfully"
+}
+```
+
+**Note:** Deleting an account will permanently remove all associated menus and dishes.
+
+**Error Responses:**
+- `401` - Password is incorrect
+
+
 ### Menus
 
 #### List all menus
@@ -590,6 +662,9 @@ The API implements rate limiting to prevent abuse:
 |----------|-------|
 | Register | 5/minute |
 | Login | 10/minute |
+| Update Email | 10/minute |
+| Update Password | 10/minute |
+| Delete Account | 5/minute |
 | GET endpoints | 60/minute |
 | POST endpoints | 20-30/minute |
 | DELETE endpoints | 10-20/minute |

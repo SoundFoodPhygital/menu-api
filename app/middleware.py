@@ -1,6 +1,6 @@
 """Middleware for request processing."""
 
-from flask import Flask, request, g
+from flask import Flask, request
 from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 from jwt.exceptions import ExpiredSignatureError
 

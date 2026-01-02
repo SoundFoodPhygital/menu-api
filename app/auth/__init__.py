@@ -3,9 +3,9 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import (
     create_access_token,
-    jwt_required,
-    get_jwt_identity,
     get_jwt,
+    get_jwt_identity,
+    jwt_required,
 )
 
 from ..extensions import db, jwt, limiter

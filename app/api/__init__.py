@@ -1,10 +1,10 @@
 """API blueprint - handles menu, dish, and attribute CRUD operations."""
 
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from ..extensions import db, limiter
-from ..models import Menu, Dish, Emotion, Texture, Shape, User
+from ..models import Dish, Emotion, Menu, Shape, Texture
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 

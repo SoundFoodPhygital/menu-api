@@ -1,10 +1,10 @@
 """Admin authentication routes blueprint."""
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_user, logout_user, current_user
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_user, logout_user
 
-from ..models import User
 from ..extensions import limiter
+from ..models import User
 from .views import AdminLoginForm
 
 admin_auth_bp = Blueprint("admin_auth", __name__, url_prefix="/admin")

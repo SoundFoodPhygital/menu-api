@@ -1,6 +1,5 @@
 """Tests for admin area access."""
 
-import pytest
 
 
 class TestAdminLogin:

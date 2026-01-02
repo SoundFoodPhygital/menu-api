@@ -1,11 +1,13 @@
 """User model."""
 
 from __future__ import annotations
+
 import typing as tp
+
 from flask_login import UserMixin
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..extensions import db
 
@@ -23,7 +25,7 @@ class User(db.Model, UserMixin):
     password_hash: Mapped[str] = mapped_column(String, nullable=False)
     is_admin: Mapped[bool] = mapped_column(Integer, nullable=False, default=0)
     is_manager: Mapped[bool] = mapped_column(Integer, nullable=False, default=0)
-    menus: Mapped[tp.List["Menu"]] = relationship(back_populates="owner")
+    menus: Mapped[list[Menu]] = relationship(back_populates="owner")
 
     def set_password(self, password: str) -> None:
         """Hash and set the user's password."""
@@ -49,7 +51,7 @@ class User(db.Model, UserMixin):
         password: str,
         is_admin: bool = False,
         is_manager: bool = False,
-    ) -> "User":
+    ) -> User:
         """Factory method to create and persist a new user."""
         user = cls(
             username=username,
@@ -62,7 +64,7 @@ class User(db.Model, UserMixin):
         return user
 
     @classmethod
-    def get_by_username(cls, username: str) -> tp.Optional["User"]:
+    def get_by_username(cls, username: str) -> User | None:
         """Find user by username."""
         return db.session.execute(
             db.select(cls).where(cls.username == username)

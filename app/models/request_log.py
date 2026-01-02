@@ -1,12 +1,17 @@
 """Request logging model for API analytics."""
 
 from __future__ import annotations
+
+import typing as tp
 from dataclasses import dataclass
-from datetime import datetime
-from sqlalchemy import Integer, String, DateTime, func
+
+from sqlalchemy import DateTime, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from ..extensions import db
+
+if tp.TYPE_CHECKING:
+    from datetime import datetime
 
 
 @dataclass
@@ -24,8 +29,8 @@ class RequestLog(db.Model):
 
     @classmethod
     def create(
-        cls, method: str, endpoint: str, status_code: int, user_id: int = None
-    ) -> "RequestLog":
+        cls, method: str, endpoint: str, status_code: int, user_id: int | None = None
+    ) -> RequestLog:
         """Factory method to create a new request log entry."""
         log = cls(
             method=method, endpoint=endpoint, status_code=status_code, user_id=user_id
@@ -35,7 +40,7 @@ class RequestLog(db.Model):
         return log
 
     @classmethod
-    def get_recent(cls, limit: int = 10) -> list["RequestLog"]:
+    def get_recent(cls, limit: int = 10) -> list[RequestLog]:
         """Get most recent request logs."""
         return cls.query.order_by(cls.timestamp.desc()).limit(limit).all()
 

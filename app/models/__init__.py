@@ -1,19 +1,19 @@
 """Models package."""
 
-from .user import User
-from .menu import Menu, Dish
-from .attributes import Emotion, Texture, Shape, emotion_dish, texture_dish, shape_dish
+from .attributes import Emotion, Shape, Texture, emotion_dish, shape_dish, texture_dish
+from .menu import Dish, Menu
 from .request_log import RequestLog
+from .user import User
 
 __all__ = [
-    "User",
-    "Menu",
     "Dish",
     "Emotion",
-    "Texture",
-    "Shape",
+    "Menu",
     "RequestLog",
+    "Shape",
+    "Texture",
+    "User",
     "emotion_dish",
-    "texture_dish",
     "shape_dish",
+    "texture_dish",
 ]

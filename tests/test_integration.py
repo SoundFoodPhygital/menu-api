@@ -1,6 +1,5 @@
 """Integration tests for complete workflows."""
 
-import pytest
 
 
 class TestUserWorkflow:

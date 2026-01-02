@@ -1,13 +1,15 @@
 """Menu and Dish models."""
 
 from __future__ import annotations
-from dataclasses import dataclass
+
 import typing as tp
-from sqlalchemy import Integer, String, ForeignKey
+from dataclasses import dataclass
+
+from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..extensions import db
-from .attributes import Emotion, Texture, Shape, emotion_dish, texture_dish, shape_dish
+from .attributes import Emotion, Shape, Texture, emotion_dish, shape_dish, texture_dish
 
 if tp.TYPE_CHECKING:
     from .user import User
@@ -22,11 +24,11 @@ class Menu(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     description: Mapped[str] = mapped_column(String)
     title: Mapped[str] = mapped_column(String)
-    owner_id: Mapped[tp.Optional[int]] = mapped_column(
+    owner_id: Mapped[int | None] = mapped_column(
         ForeignKey("user.id"), nullable=True
     )
-    owner: Mapped[tp.Optional["User"]] = relationship(back_populates="menus")
-    dishes: Mapped[tp.List["Dish"]] = relationship(cascade="all, delete-orphan")
+    owner: Mapped[User | None] = relationship(back_populates="menus")
+    dishes: Mapped[list[Dish]] = relationship(cascade="all, delete-orphan")
 
 
 @dataclass
@@ -42,30 +44,30 @@ class Dish(db.Model):
     section: Mapped[str] = mapped_column(String)
 
     # Emotions
-    emotions: Mapped[tp.List[Emotion]] = relationship(secondary=emotion_dish)
+    emotions: Mapped[list[Emotion]] = relationship(secondary=emotion_dish)
 
     # Basic tastes
-    bitter: Mapped[tp.Optional[int]] = mapped_column(Integer, nullable=True)
-    salty: Mapped[tp.Optional[int]] = mapped_column(Integer, nullable=True)
-    sour: Mapped[tp.Optional[int]] = mapped_column(Integer, nullable=True)
-    sweet: Mapped[tp.Optional[int]] = mapped_column(Integer, nullable=True)
-    umami: Mapped[tp.Optional[int]] = mapped_column(Integer, nullable=True)
+    bitter: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    salty: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    sour: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    sweet: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    umami: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # Other tastes
-    fat: Mapped[tp.Optional[int]] = mapped_column(Integer, nullable=True)
-    piquant: Mapped[tp.Optional[int]] = mapped_column(Integer, nullable=True)
-    temperature: Mapped[tp.Optional[int]] = mapped_column(Integer, nullable=True)
+    fat: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    piquant: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    temperature: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # Textures
-    textures: Mapped[tp.List[Texture]] = relationship(secondary=texture_dish)
+    textures: Mapped[list[Texture]] = relationship(secondary=texture_dish)
 
     # Colors
-    color1: Mapped[tp.Optional[str]] = mapped_column(String, nullable=True)
-    color2: Mapped[tp.Optional[str]] = mapped_column(String, nullable=True)
-    color3: Mapped[tp.Optional[str]] = mapped_column(String, nullable=True)
+    color1: Mapped[str | None] = mapped_column(String, nullable=True)
+    color2: Mapped[str | None] = mapped_column(String, nullable=True)
+    color3: Mapped[str | None] = mapped_column(String, nullable=True)
 
     # Shapes
-    shapes: Mapped[tp.List[Shape]] = relationship(secondary=shape_dish)
+    shapes: Mapped[list[Shape]] = relationship(secondary=shape_dish)
 
 
 class DishBuilder:
@@ -76,7 +78,7 @@ class DishBuilder:
 
     def with_basic_info(
         self, name: str, description: str, section: str
-    ) -> "DishBuilder":
+    ) -> DishBuilder:
         self._dish.name = name
         self._dish.description = description
         self._dish.section = section
@@ -89,7 +91,7 @@ class DishBuilder:
         salty: int = None,
         bitter: int = None,
         umami: int = None,
-    ) -> "DishBuilder":
+    ) -> DishBuilder:
         self._dish.sour = sour
         self._dish.sweet = sweet
         self._dish.salty = salty
@@ -99,26 +101,26 @@ class DishBuilder:
 
     def with_other_tastes(
         self, fat: int = None, piquant: int = None, temperature: int = None
-    ) -> "DishBuilder":
+    ) -> DishBuilder:
         self._dish.fat = fat
         self._dish.piquant = piquant
         self._dish.temperature = temperature
         return self
 
-    def with_colors(self, colors: tp.List[str]) -> "DishBuilder":
+    def with_colors(self, colors: list[str]) -> DishBuilder:
         for i, color in enumerate(colors[:3]):
-            setattr(self._dish, f"color{i+1}", color)
+            setattr(self._dish, f"color{i + 1}", color)
         return self
 
-    def with_emotions(self, emotions: tp.List[Emotion]) -> "DishBuilder":
+    def with_emotions(self, emotions: list[Emotion]) -> DishBuilder:
         self._dish.emotions = emotions
         return self
 
-    def with_textures(self, textures: tp.List[Texture]) -> "DishBuilder":
+    def with_textures(self, textures: list[Texture]) -> DishBuilder:
         self._dish.textures = textures
         return self
 
-    def with_shapes(self, shapes: tp.List[Shape]) -> "DishBuilder":
+    def with_shapes(self, shapes: list[Shape]) -> DishBuilder:
         self._dish.shapes = shapes
         return self
 

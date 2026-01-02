@@ -1,6 +1,5 @@
 """Tests for dish API endpoints."""
 
-import pytest
 
 
 class TestGetDishes:
@@ -31,6 +30,7 @@ class TestGetDishes:
     def test_get_dishes_unauthorized_menu(self, client, test_menu, app):
         """Test getting dishes from another user's menu."""
         from flask_jwt_extended import create_access_token
+
         from app.models import User
 
         with app.app_context():
@@ -94,6 +94,7 @@ class TestCreateDish:
     def test_create_dish_unauthorized_menu(self, client, test_menu, app):
         """Test creating dish in another user's menu."""
         from flask_jwt_extended import create_access_token
+
         from app.models import User
 
         with app.app_context():
@@ -166,6 +167,7 @@ class TestUpdateDish:
     def test_update_dish_unauthorized(self, client, test_dish, app):
         """Test updating another user's dish."""
         from flask_jwt_extended import create_access_token
+
         from app.models import User
 
         with app.app_context():
@@ -207,6 +209,7 @@ class TestDeleteDish:
     def test_delete_dish_unauthorized(self, client, test_dish, app):
         """Test deleting another user's dish."""
         from flask_jwt_extended import create_access_token
+
         from app.models import User
 
         with app.app_context():

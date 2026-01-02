@@ -72,7 +72,7 @@ def init_cli(app: Flask):
     @with_appcontext
     def seed_attributes():
         """Seed default emotions, textures, and shapes."""
-        from .models import Emotion, Texture, Shape
+        from .models import Emotion, Shape, Texture
 
         emotions = [
             "happy",

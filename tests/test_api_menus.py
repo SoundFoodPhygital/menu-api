@@ -1,6 +1,5 @@
 """Tests for menu API endpoints."""
 
-import pytest
 
 
 class TestGetMenus:
@@ -50,6 +49,7 @@ class TestGetMenu:
     def test_get_menu_unauthorized_user(self, client, test_menu, app):
         """Test getting menu belonging to another user."""
         from flask_jwt_extended import create_access_token
+
         from app.models import User
 
         with app.app_context():
@@ -136,6 +136,7 @@ class TestUpdateMenu:
     def test_update_menu_unauthorized_user(self, client, test_menu, app):
         """Test updating menu belonging to another user."""
         from flask_jwt_extended import create_access_token
+
         from app.models import User
 
         with app.app_context():
@@ -177,6 +178,7 @@ class TestDeleteMenu:
     def test_delete_menu_unauthorized_user(self, client, test_menu, app):
         """Test deleting menu belonging to another user."""
         from flask_jwt_extended import create_access_token
+
         from app.models import User
 
         with app.app_context():

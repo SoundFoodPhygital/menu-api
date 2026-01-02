@@ -1,17 +1,17 @@
 """Admin module - Flask-Admin configuration and views."""
 
-from flask import redirect, url_for, request, flash, render_template
+from flask import redirect, request, url_for
 from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.form import SecureForm
 from flask_admin.menu import MenuLink
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
+from wtforms import PasswordField, StringField, SubmitField
+from wtforms.validators import DataRequired
 
 from ..extensions import db
-from ..models import User, Menu, Dish, Emotion, Texture, Shape, RequestLog
+from ..models import Dish, Emotion, Menu, RequestLog, Shape, Texture, User
 
 
 class AdminLoginForm(FlaskForm):

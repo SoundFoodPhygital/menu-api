@@ -6,7 +6,7 @@ from flask_jwt_extended import create_access_token
 from app import create_app
 from app.config import TestingConfig
 from app.extensions import db
-from app.models import User, Menu, Dish, Emotion, Texture, Shape
+from app.models import Dish, Emotion, Menu, Shape, Texture, User
 
 
 @pytest.fixture(scope="function")

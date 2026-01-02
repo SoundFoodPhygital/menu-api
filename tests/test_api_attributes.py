@@ -1,6 +1,5 @@
 """Tests for attribute API endpoints (emotions, textures, shapes)."""
 
-import pytest
 
 
 class TestEmotions:

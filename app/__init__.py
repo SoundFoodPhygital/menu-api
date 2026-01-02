@@ -2,8 +2,8 @@
 
 from flask import Flask
 
-from .extensions import db, migrate, login_manager, jwt, babel, cors, limiter
 from .config import Config
+from .extensions import babel, cors, db, jwt, limiter, login_manager, migrate
 
 
 def create_app(config_class=Config):
@@ -45,9 +45,9 @@ def _init_extensions(app: Flask):
 
 def _register_blueprints(app: Flask):
     """Register application blueprints."""
+    from .admin import admin_auth_bp
     from .api import api_bp
     from .auth import auth_bp
-    from .admin import admin_auth_bp
 
     app.register_blueprint(api_bp)
     app.register_blueprint(auth_bp)

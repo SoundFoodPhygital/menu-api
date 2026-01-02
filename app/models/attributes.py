@@ -1,7 +1,8 @@
 """Attribute models (Emotion, Texture, Shape)."""
 
 from dataclasses import dataclass
-from sqlalchemy import Integer, String, ForeignKey, Column
+
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from ..extensions import db

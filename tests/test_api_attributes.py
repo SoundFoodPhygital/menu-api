@@ -1,7 +1,6 @@
 """Tests for attribute API endpoints (emotions, textures, shapes)."""
 
 
-
 class TestEmotions:
     """Tests for emotions endpoint."""
 

@@ -24,9 +24,7 @@ class Menu(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     description: Mapped[str] = mapped_column(String)
     title: Mapped[str] = mapped_column(String)
-    owner_id: Mapped[int | None] = mapped_column(
-        ForeignKey("user.id"), nullable=True
-    )
+    owner_id: Mapped[int | None] = mapped_column(ForeignKey("user.id"), nullable=True)
     owner: Mapped[User | None] = relationship(back_populates="menus")
     dishes: Mapped[list[Dish]] = relationship(cascade="all, delete-orphan")
 
@@ -76,9 +74,7 @@ class DishBuilder:
     def __init__(self):
         self._dish = Dish()
 
-    def with_basic_info(
-        self, name: str, description: str, section: str
-    ) -> DishBuilder:
+    def with_basic_info(self, name: str, description: str, section: str) -> DishBuilder:
         self._dish.name = name
         self._dish.description = description
         self._dish.section = section

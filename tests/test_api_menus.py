@@ -1,7 +1,6 @@
 """Tests for menu API endpoints."""
 
 
-
 class TestGetMenus:
     """Tests for getting menus."""
 

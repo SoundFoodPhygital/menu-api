@@ -1,7 +1,6 @@
 """Tests for authentication endpoints."""
 
 
-
 class TestRegistration:
     """Tests for user registration."""
 

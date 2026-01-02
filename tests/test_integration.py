@@ -1,7 +1,6 @@
 """Integration tests for complete workflows."""
 
 
-
 class TestUserWorkflow:
     """Test complete user workflows."""
 

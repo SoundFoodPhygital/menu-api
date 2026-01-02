@@ -1,7 +1,6 @@
 """Tests for dish API endpoints."""
 
 
-
 class TestGetDishes:
     """Tests for getting dishes."""
 

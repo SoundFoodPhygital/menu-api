@@ -1,7 +1,6 @@
 """Tests for admin area access."""
 
 
-
 class TestAdminLogin:
     """Tests for admin login functionality."""
 

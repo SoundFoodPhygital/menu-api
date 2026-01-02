@@ -2,16 +2,13 @@
 
 from __future__ import annotations
 
-import typing as tp
 from dataclasses import dataclass
+from datetime import datetime  # noqa: TC003
 
 from sqlalchemy import DateTime, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from ..extensions import db
-
-if tp.TYPE_CHECKING:
-    from datetime import datetime
 
 
 @dataclass

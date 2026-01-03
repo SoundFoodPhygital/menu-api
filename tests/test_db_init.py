@@ -49,24 +49,24 @@ class TestDatabaseInitialization:
 
             # Check emotions were created
             emotions = Emotion.query.all()
-            assert len(emotions) == 9
+            assert len(emotions) == 13
             emotion_names = [e.description for e in emotions]
-            assert "happy" in emotion_names
-            assert "sad" in emotion_names
+            assert "joy" in emotion_names
+            assert "sadness" in emotion_names
 
             # Check textures were created
             textures = Texture.query.all()
-            assert len(textures) == 10
+            assert len(textures) == 12
             texture_names = [t.description for t in textures]
-            assert "crispy" in texture_names
-            assert "creamy" in texture_names
+            assert "soft" in texture_names
+            assert "crunchy" in texture_names
 
             # Check shapes were created
             shapes = Shape.query.all()
-            assert len(shapes) == 9
+            assert len(shapes) == 7
             shape_names = [s.description for s in shapes]
             assert "round" in shape_names
-            assert "square" in shape_names
+            assert "sharp" in shape_names
 
     def test_seed_default_data_idempotent(self, app):
         """Test that seeding is idempotent (can be run multiple times)."""
@@ -144,9 +144,9 @@ class TestDatabaseInitialization:
 
             assert result is True
             assert User.query.count() >= 1
-            assert Emotion.query.count() == 9
-            assert Texture.query.count() == 10
-            assert Shape.query.count() == 9
+            assert Emotion.query.count() == 13
+            assert Texture.query.count() == 12
+            assert Shape.query.count() == 7
 
     def test_init_database_already_initialized(self, app):
         """Test that init_database returns False when already set up."""

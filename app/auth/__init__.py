@@ -92,3 +92,113 @@ def get_current_user():
         return jsonify({"error": "User not found"}), 404
 
     return jsonify({"id": user.id, "username": user.username, "role": user.role}), 200
+
+
+@auth_bp.route("/me/email", methods=["PATCH"])
+@jwt_required()
+@limiter.limit("10 per minute")
+def update_email():
+    """Update user's email address."""
+    user_id = get_jwt_identity()
+    user = db.session.get(User, int(user_id))
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    data = request.get_json()
+
+    if data is None:
+        return jsonify({"error": "No data provided"}), 400
+
+    new_email = data.get("email")
+
+    if not new_email:
+        return jsonify({"error": "Email is required"}), 400
+
+    # Validate email format
+    if not User.validate_email(new_email):
+        return jsonify({"error": "Invalid email format"}), 400
+
+    # Check if email already exists
+    existing_user = User.get_by_email(new_email)
+    if existing_user and existing_user.id != user.id:
+        return jsonify({"error": "Email already in use"}), 409
+
+    user.email = new_email
+    db.session.commit()
+
+    return jsonify({"message": "Email updated successfully"}), 200
+
+
+@auth_bp.route("/me/password", methods=["PATCH"])
+@jwt_required()
+@limiter.limit("10 per minute")
+def update_password():
+    """Update user's password."""
+    user_id = get_jwt_identity()
+    user = db.session.get(User, int(user_id))
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    data = request.get_json()
+
+    if data is None:
+        return jsonify({"error": "No data provided"}), 400
+
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+
+    if not current_password or not new_password:
+        return jsonify({"error": "Current password and new password are required"}), 400
+
+    # Verify current password
+    if not user.check_password(current_password):
+        return jsonify({"error": "Current password is incorrect"}), 401
+
+    # Validate new password strength
+    is_valid, error_message = User.validate_password_strength(new_password)
+    if not is_valid:
+        return jsonify({"error": error_message}), 400
+
+    # Update password
+    user.set_password(new_password)
+    db.session.commit()
+
+    return jsonify({"message": "Password updated successfully"}), 200
+
+
+@auth_bp.route("/me", methods=["DELETE"])
+@jwt_required()
+@limiter.limit("5 per minute")
+def delete_account():
+    """Delete user account and all associated data."""
+    user_id = get_jwt_identity()
+    user = db.session.get(User, int(user_id))
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    data = request.get_json()
+
+    if data is None:
+        return jsonify({"error": "No data provided"}), 400
+
+    password = data.get("password")
+
+    if not password:
+        return jsonify({"error": "Password confirmation is required"}), 400
+
+    # Verify password before deletion
+    if not user.check_password(password):
+        return jsonify({"error": "Password is incorrect"}), 401
+
+    # Revoke current token
+    jti = get_jwt()["jti"]
+    revoked_tokens.add(jti)
+
+    # Delete user (cascade will delete menus and dishes)
+    db.session.delete(user)
+    db.session.commit()
+
+    return jsonify({"message": "Account deleted successfully"}), 200

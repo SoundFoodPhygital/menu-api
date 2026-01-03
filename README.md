@@ -64,26 +64,70 @@ flask --app wsgi run --debug
 ### Using Docker
 
 ```bash
-# Production
+# Create your .env file from example
+cp .env.example .env
+# Edit .env with your settings (especially SECRET_KEY and ADMIN_PASSWORD)
+
+# Production with SQLite (default)
 docker compose up -d
 
+# Production with PostgreSQL
+docker compose --profile postgres up -d
+
+# Production with MariaDB
+docker compose --profile mariadb up -d
+
 # Development (with hot-reload)
-docker compose up dev
+docker compose --profile dev up
 
 # Build manually
 docker build -t soundfood-api --target production .
 ```
 
+> **Note:** On first startup, the database is automatically initialized with:
+> - All required tables
+> - Default attributes (emotions, textures, shapes)
+> - An admin user (credentials from `.env` or defaults: admin/admin123)
+
 ## Configuration
 
-Set environment variables to configure the application:
+Create a `.env` file from the example:
+
+```bash
+cp .env.example .env
+```
+
+### Environment Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `SECRET_KEY` | Flask secret key | `dev-secret-key` |
 | `JWT_SECRET_KEY` | JWT signing key | `dev-jwt-secret` |
-| `DATABASE_URL` | Database connection string | `sqlite:///project.db` |
+| `DATABASE_URL` | Database connection string | `sqlite:///instance/project.db` |
 | `FLASK_ENV` | Environment (`development`/`production`) | `development` |
+| `ADMIN_USERNAME` | Default admin username | `admin` |
+| `ADMIN_PASSWORD` | Default admin password | `admin123` |
+| `ADMIN_EMAIL` | Default admin email | `admin@example.com` |
+| `AUTO_INIT_DB` | Auto-initialize database on startup | `true` |
+
+### Database Configuration
+
+The application supports multiple database backends:
+
+**SQLite (default - good for development and small deployments):**
+```bash
+DATABASE_URL=sqlite:///instance/project.db
+```
+
+**PostgreSQL (recommended for production):**
+```bash
+DATABASE_URL=postgresql://user:password@localhost:5432/soundfood
+```
+
+**MariaDB/MySQL:**
+```bash
+DATABASE_URL=mysql+pymysql://user:password@localhost:3306/soundfood
+```
 
 ### Caching
 

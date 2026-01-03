@@ -29,6 +29,10 @@ def create_app(config_class=Config):
     # Setup login manager
     _setup_login_manager()
 
+    # Auto-initialize database if enabled
+    if app.config.get("AUTO_INIT_DB", True):
+        _auto_init_database(app)
+
     return app
 
 
@@ -83,3 +87,17 @@ def _setup_login_manager():
     @login_manager.user_loader
     def load_user(user_id):
         return db.session.get(User, int(user_id))
+
+
+def _auto_init_database(app: Flask):
+    """Auto-initialize database if needed."""
+    import logging
+
+    from .db_init import init_database
+
+    logger = logging.getLogger(__name__)
+    try:
+        init_database(app)
+    except Exception as e:
+        logger.warning(f"Database auto-initialization skipped or failed: {e}")
+        # Don't fail startup - might be running migrations or CLI commands

@@ -1,5 +1,5 @@
 services:
-  # Production service
+  # Production service (SQLite - default)
   app:
     build:
       context: .
@@ -7,20 +7,127 @@ services:
     container_name: soundfood-api
     ports:
       - "5000:5000"
+    env_file:
+      - .env
     environment:
       - FLASK_ENV=production
       - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change-jwt-secret-in-production}
-      - DATABASE_URL=sqlite:///instance/project.db
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///instance/project.db}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
     volumes:
       - db_data:/app/instance
     restart: unless-stopped
+    profiles:
+      - sqlite
+      - default
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/auth/login"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
+
+  # Production service with PostgreSQL
+  app-postgres:
+    build:
+      context: .
+      target: production
+    container_name: soundfood-api-postgres
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change-jwt-secret-in-production}
+      - DATABASE_URL=postgresql://soundfood:soundfood@postgres:5432/soundfood
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    profiles:
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/auth/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: soundfood-postgres
+    environment:
+      - POSTGRES_USER=soundfood
+      - POSTGRES_PASSWORD=soundfood
+      - POSTGRES_DB=soundfood
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    profiles:
+      - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U soundfood"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Production service with MariaDB
+  app-mariadb:
+    build:
+      context: .
+      target: production
+    container_name: soundfood-api-mariadb
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change-jwt-secret-in-production}
+      - DATABASE_URL=mysql+pymysql://soundfood:soundfood@mariadb:3306/soundfood
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    restart: unless-stopped
+    profiles:
+      - mariadb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/auth/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  mariadb:
+    image: mariadb:11
+    container_name: soundfood-mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=soundfood
+      - MYSQL_USER=soundfood
+      - MYSQL_PASSWORD=soundfood
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    restart: unless-stopped
+    profiles:
+      - mariadb
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Development service (use with: docker compose up dev)
   dev:
@@ -30,11 +137,15 @@ services:
     container_name: soundfood-api-dev
     ports:
       - "5000:5000"
+    env_file:
+      - .env
     environment:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
       - SECRET_KEY=dev-secret-key
       - JWT_SECRET_KEY=dev-jwt-secret
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin123
     volumes:
       - .:/app
       - /app/.venv  # Exclude venv from mount
@@ -43,3 +154,5 @@ services:
 
 volumes:
   db_data:
+  postgres_data:
+  mariadb_data:

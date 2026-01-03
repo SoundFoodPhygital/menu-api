@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import typing as tp
 
 from flask_login import UserMixin
@@ -26,7 +27,9 @@ class User(db.Model, UserMixin):
     password_hash: Mapped[str] = mapped_column(String, nullable=False)
     is_admin: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_manager: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    menus: Mapped[list[Menu]] = relationship(back_populates="owner")
+    menus: Mapped[list[Menu]] = relationship(
+        back_populates="owner", cascade="all, delete-orphan"
+    )
 
     def set_password(self, password: str) -> None:
         """Hash and set the user's password."""
@@ -72,3 +75,30 @@ class User(db.Model, UserMixin):
         return db.session.execute(
             db.select(cls).where(cls.username == username)
         ).scalar()
+
+    @classmethod
+    def get_by_email(cls, email: str) -> User | None:
+        """Find user by email."""
+        return db.session.execute(db.select(cls).where(cls.email == email)).scalar()
+
+    @staticmethod
+    def validate_email(email: str) -> bool:
+        """Validate email format."""
+        pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+        return bool(re.match(pattern, email))
+
+    @staticmethod
+    def validate_password_strength(password: str) -> tuple[bool, str]:
+        """
+        Validate password strength.
+
+        Returns:
+            tuple[bool, str]: (is_valid, error_message)
+        """
+        if len(password) < 8:
+            return False, "Password must be at least 8 characters long"
+        if not any(c.isdigit() for c in password):
+            return False, "Password must contain at least one digit"
+        if not any(c.isalpha() for c in password):
+            return False, "Password must contain at least one letter"
+        return True, ""

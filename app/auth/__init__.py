@@ -91,7 +91,18 @@ def get_current_user():
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    return jsonify({"id": user.id, "username": user.username, "role": user.role}), 200
+    return (
+        jsonify(
+            {
+                "id": user.id,
+                "username": user.username,
+                "role": user.role,
+                "created_at": user.created_at.isoformat(),
+                "updated_at": user.updated_at.isoformat(),
+            }
+        ),
+        200,
+    )
 
 
 @auth_bp.route("/me/email", methods=["PATCH"])

@@ -148,6 +148,8 @@ class TestCurrentUser:
         data = response.get_json()
         assert data["username"] == "testuser"
         assert data["role"] == "user"
+        assert "created_at" in data
+        assert "updated_at" in data
 
     def test_get_current_user_admin(self, client, admin_auth_headers, admin_user):
         """Test getting current admin user info."""

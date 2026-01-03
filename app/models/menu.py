@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import enum
 import typing as tp
 from dataclasses import dataclass
+from datetime import datetime  # noqa: TC003
 
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..extensions import db
@@ -13,6 +15,13 @@ from .attributes import Emotion, Shape, Texture, emotion_dish, shape_dish, textu
 
 if tp.TYPE_CHECKING:
     from .user import User
+
+
+class MenuStatus(enum.Enum):
+    """Menu status enum."""
+
+    DRAFT = "draft"
+    SUBMITTED = "submitted"
 
 
 @dataclass
@@ -24,7 +33,19 @@ class Menu(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     description: Mapped[str] = mapped_column(String)
     title: Mapped[str] = mapped_column(String)
+    status: Mapped[MenuStatus] = mapped_column(
+        Enum(MenuStatus), default=MenuStatus.DRAFT, nullable=False
+    )
     owner_id: Mapped[int | None] = mapped_column(ForeignKey("user.id"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
     owner: Mapped[User | None] = relationship(back_populates="menus")
     dishes: Mapped[list[Dish]] = relationship(cascade="all, delete-orphan")
 
@@ -40,6 +61,15 @@ class Dish(db.Model):
     name: Mapped[str] = mapped_column(String)
     description: Mapped[str] = mapped_column(String)
     section: Mapped[str] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
 
     # Emotions
     emotions: Mapped[list[Emotion]] = relationship(secondary=emotion_dish)

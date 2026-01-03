@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from ..extensions import cache, db, limiter
-from ..models import Dish, Emotion, Menu, Shape, Texture
+from ..models import Dish, Emotion, Menu, MenuStatus, Shape, Texture
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -44,7 +44,10 @@ def get_menus():
                     "id": m.id,
                     "title": m.title,
                     "description": m.description,
+                    "status": m.status.value,
                     "dish_count": len(m.dishes),
+                    "created_at": m.created_at.isoformat(),
+                    "updated_at": m.updated_at.isoformat(),
                 }
                 for m in menus
             ]
@@ -73,6 +76,9 @@ def get_menu(menu_id: int):
                 "id": menu.id,
                 "title": menu.title,
                 "description": menu.description,
+                "status": menu.status.value,
+                "created_at": menu.created_at.isoformat(),
+                "updated_at": menu.updated_at.isoformat(),
                 "dishes": [_serialize_dish(d) for d in menu.dishes],
             }
         ),
@@ -121,9 +127,39 @@ def update_menu(menu_id: int):
         menu.title = data["title"]
     if data.get("description"):
         menu.description = data["description"]
+    if data.get("status"):
+        try:
+            menu.status = MenuStatus(data["status"])
+        except ValueError:
+            return (
+                jsonify({"error": "Invalid status. Must be 'draft' or 'submitted'"}),
+                400,
+            )
 
     db.session.commit()
     return jsonify({"message": "Menu updated"}), 200
+
+
+@api_bp.route("/menus/<int:menu_id>/submit", methods=["POST"])
+@jwt_required()
+@limiter.limit("20 per minute")
+def submit_menu(menu_id: int):
+    """Submit a menu (change status from draft to submitted)."""
+    user_id = int(get_jwt_identity())
+    menu = db.session.get(Menu, menu_id)
+
+    if not menu:
+        return jsonify({"error": "Menu not found"}), 404
+
+    if menu.owner_id != user_id:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    if menu.status == MenuStatus.SUBMITTED:
+        return jsonify({"error": "Menu is already submitted"}), 400
+
+    menu.status = MenuStatus.SUBMITTED
+    db.session.commit()
+    return jsonify({"message": "Menu submitted successfully"}), 200
 
 
 @api_bp.route("/menus/<int:menu_id>", methods=["DELETE"])
@@ -335,6 +371,8 @@ def _serialize_dish(dish: Dish) -> dict:
         "piquant": dish.piquant,
         "temperature": dish.temperature,
         "colors": [c for c in [dish.color1, dish.color2, dish.color3] if c],
+        "created_at": dish.created_at.isoformat(),
+        "updated_at": dish.updated_at.isoformat(),
     }
 
 

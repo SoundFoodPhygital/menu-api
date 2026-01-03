@@ -252,7 +252,9 @@ Authorization: Bearer <token>
 {
   "id": 1,
   "username": "john_doe",
-  "role": "user"
+  "role": "user",
+  "created_at": "2026-01-03T10:30:00+00:00",
+  "updated_at": "2026-01-03T12:45:00+00:00"
 }
 ```
 
@@ -344,7 +346,10 @@ Authorization: Bearer <token>
     "id": 1,
     "title": "Lunch Menu",
     "description": "Daily lunch specials",
-    "dish_count": 5
+    "status": "draft",
+    "dish_count": 5,
+    "created_at": "2026-01-03T10:30:00+00:00",
+    "updated_at": "2026-01-03T12:45:00+00:00"
   }
 ]
 ```
@@ -362,6 +367,9 @@ Authorization: Bearer <token>
   "id": 1,
   "title": "Lunch Menu",
   "description": "Daily lunch specials",
+  "status": "draft",
+  "created_at": "2026-01-03T10:30:00+00:00",
+  "updated_at": "2026-01-03T12:45:00+00:00",
   "dishes": [...]
 }
 ```
@@ -396,9 +404,12 @@ Content-Type: application/json
 
 {
   "title": "Updated Title",
-  "description": "Updated description"
+  "description": "Updated description",
+  "status": "submitted"
 }
 ```
+
+**Note:** Status must be either `draft` or `submitted`.
 
 **Response (200):**
 ```json
@@ -406,6 +417,32 @@ Content-Type: application/json
   "message": "Menu updated"
 }
 ```
+
+**Error Responses:**
+- `400` - Invalid status value
+- `403` - Unauthorized to modify this menu
+- `404` - Menu not found
+
+#### Submit a menu
+
+```http
+POST /api/menus/{menu_id}/submit
+Authorization: Bearer <token>
+```
+
+Changes the menu status from `draft` to `submitted`.
+
+**Response (200):**
+```json
+{
+  "message": "Menu submitted successfully"
+}
+```
+
+**Error Responses:**
+- `400` - Menu is already submitted
+- `403` - Unauthorized to submit this menu
+- `404` - Menu not found
 
 #### Delete a menu
 
@@ -449,7 +486,9 @@ Authorization: Bearer <token>
     "fat": 4,
     "piquant": 1,
     "temperature": 4,
-    "colors": ["#F5DEB3", "#FFD700"]
+    "colors": ["#F5DEB3", "#FFD700"],
+    "created_at": "2026-01-03T10:30:00+00:00",
+    "updated_at": "2026-01-03T12:45:00+00:00"
   }
 ]
 ```

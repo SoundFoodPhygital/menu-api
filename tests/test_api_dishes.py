@@ -19,6 +19,8 @@ class TestGetDishes:
         data = response.get_json()
         assert len(data) == 1
         assert data[0]["name"] == "Test Dish"
+        assert "created_at" in data[0]
+        assert "updated_at" in data[0]
 
     def test_get_dishes_menu_not_found(self, client, auth_headers):
         """Test getting dishes from non-existent menu."""

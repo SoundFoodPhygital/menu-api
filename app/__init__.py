@@ -8,7 +8,12 @@ from .extensions import babel, cache, cors, db, jwt, limiter, login_manager, mig
 
 def create_app(config_class=Config):
     """Application factory pattern."""
-    app = Flask(__name__, template_folder="../templates")
+    app = Flask(
+        __name__,
+        template_folder="../templates",
+        static_folder="../assets",
+        static_url_path="/assets",
+    )
     app.config.from_object(config_class)
 
     # Initialize extensions

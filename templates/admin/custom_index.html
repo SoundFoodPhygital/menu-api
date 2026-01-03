@@ -1,102 +1,197 @@
 {% extends 'admin/master.html' %}
 {% block body %}
-<div class="container-fluid">
-  <!-- Stats Cards -->
-  <div class="row mb-4">
-    <div class="col-6 col-md-4 col-lg-2 mb-3">
-      <div class="card bg-primary text-white text-center h-100">
-        <div class="card-body">
-          <h3 class="card-title mb-0">{{ stats.users }}</h3>
-          <p class="card-text mb-0">👤 Users</p>
+<!-- Stats Small Boxes -->
+<div class="row">
+  <div class="col-lg-4 col-6">
+    <div class="small-box bg-primary">
+      <div class="inner">
+        <h3>{{ stats.users }}</h3>
+        <p>Users</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <a href="{{ url_for('user.index_view') }}" class="small-box-footer">
+        More info <i class="fas fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+  <div class="col-lg-4 col-6">
+    <div class="small-box bg-success">
+      <div class="inner">
+        <h3>{{ stats.menus }}</h3>
+        <p>Menus</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-book-open"></i>
+      </div>
+      <a href="{{ url_for('menu.index_view') }}" class="small-box-footer">
+        More info <i class="fas fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+  <div class="col-lg-4 col-6">
+    <div class="small-box bg-info">
+      <div class="inner">
+        <h3>{{ stats.dishes }}</h3>
+        <p>Dishes</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-utensils"></i>
+      </div>
+      <a href="{{ url_for('dish.index_view') }}" class="small-box-footer">
+        More info <i class="fas fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-4 col-6">
+    <div class="small-box bg-warning">
+      <div class="inner">
+        <h3>{{ stats.emotions }}</h3>
+        <p>Emotions</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-smile"></i>
+      </div>
+      <a href="{{ url_for('emotion.index_view') }}" class="small-box-footer">
+        More info <i class="fas fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+  <div class="col-lg-4 col-6">
+    <div class="small-box bg-purple">
+      <div class="inner">
+        <h3>{{ stats.textures }}</h3>
+        <p>Textures</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-layer-group"></i>
+      </div>
+      <a href="{{ url_for('texture.index_view') }}" class="small-box-footer">
+        More info <i class="fas fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+  <div class="col-lg-4 col-6">
+    <div class="small-box bg-teal">
+      <div class="inner">
+        <h3>{{ stats.shapes }}</h3>
+        <p>Shapes</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-shapes"></i>
+      </div>
+      <a href="{{ url_for('shape.index_view') }}" class="small-box-footer">
+        More info <i class="fas fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Charts and Info Row -->
+<div class="row">
+  <!-- API Usage Chart -->
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header border-0">
+        <div class="d-flex justify-content-between align-items-center">
+          <h3 class="card-title">
+            <i class="fas fa-chart-line mr-2"></i>
+            API Usage (Last 30 Days)
+          </h3>
+          <div class="card-tools">
+            <span class="badge badge-info">{{ stats.requests }} Total Requests</span>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-2 mb-3">
-      <div class="card bg-success text-white text-center h-100">
-        <div class="card-body">
-          <h3 class="card-title mb-0">{{ stats.menus }}</h3>
-          <p class="card-text mb-0">📋 Menus</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-2 mb-3">
-      <div class="card bg-info text-white text-center h-100">
-        <div class="card-body">
-          <h3 class="card-title mb-0">{{ stats.dishes }}</h3>
-          <p class="card-text mb-0">🍽️ Dishes</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-2 mb-3">
-      <div class="card bg-warning text-white text-center h-100">
-        <div class="card-body">
-          <h3 class="card-title mb-0">{{ stats.emotions }}</h3>
-          <p class="card-text mb-0">😊 Emotions</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-2 mb-3">
-      <div class="card bg-secondary text-white text-center h-100">
-        <div class="card-body">
-          <h3 class="card-title mb-0">{{ stats.textures }}</h3>
-          <p class="card-text mb-0">🧱 Textures</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-2 mb-3">
-      <div class="card bg-dark text-white text-center h-100">
-        <div class="card-body">
-          <h3 class="card-title mb-0">{{ stats.shapes }}</h3>
-          <p class="card-text mb-0">🔷 Shapes</p>
+      <div class="card-body">
+        <div class="position-relative" style="height: 280px;">
+          <canvas id="usageChart"></canvas>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-lg-8 mb-4">
-      <div class="card shadow-sm">
-        <div class="card-header bg-white">
-          <h5 class="mb-0">📈 API Usage (Last 30 Days)</h5>
+  <!-- Quick Info Panel -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header border-0">
+        <h3 class="card-title">
+          <i class="fas fa-info-circle mr-2"></i>
+          Quick Info
+        </h3>
+      </div>
+      <div class="card-body pt-0">
+        <div class="d-flex justify-content-between align-items-center border-bottom py-3">
+          <div>
+            <i class="fas fa-user text-primary mr-2"></i>
+            <strong>Logged in as</strong>
+          </div>
+          <span class="text-muted">{{ current_user.username }}</span>
         </div>
-        <div class="card-body">
-          <canvas id="usageChart" height="100"></canvas>
+        <div class="d-flex justify-content-between align-items-center border-bottom py-3">
+          <div>
+            <i class="fas fa-shield-alt text-success mr-2"></i>
+            <strong>Role</strong>
+          </div>
+          {% if current_user.is_admin %}
+            <span class="badge badge-danger">Admin</span>
+          {% elif current_user.is_manager %}
+            <span class="badge badge-warning">Manager</span>
+          {% else %}
+            <span class="badge badge-secondary">User</span>
+          {% endif %}
+        </div>
+        <div class="d-flex justify-content-between align-items-center border-bottom py-3">
+          <div>
+            <i class="fas fa-clock text-info mr-2"></i>
+            <strong>Server Time</strong>
+          </div>
+          <span class="text-muted" id="server-time"></span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center py-3">
+          <div>
+            <i class="fas fa-database text-warning mr-2"></i>
+            <strong>Total Records</strong>
+          </div>
+          <span class="badge badge-secondary">
+            {{ stats.users + stats.menus + stats.dishes + stats.emotions + stats.textures + stats.shapes }}
+          </span>
         </div>
       </div>
-    </div>
-    <div class="col-lg-4 mb-4">
-      <div class="card shadow-sm h-100">
-        <div class="card-header bg-white">
-          <h5 class="mb-0">ℹ️ Quick Info</h5>
-        </div>
-        <div class="card-body">
-          <p><strong>Logged in as:</strong> {{ current_user.username }}</p>
-          <p><strong>Role:</strong>
-            {% if current_user.is_admin %}
-              <span class="badge badge-danger">Admin</span>
-            {% elif current_user.is_manager %}
-              <span class="badge badge-warning">Manager</span>
-            {% else %}
-              <span class="badge badge-secondary">User</span>
-            {% endif %}
-          </p>
-          <p><strong>Server time:</strong> <span id="server-time"></span></p>
-        </div>
+      <div class="card-footer">
+        <a href="{{ url_for('profile.index') }}" class="btn btn-sm btn-outline-primary">
+          <i class="fas fa-user-cog mr-1"></i> Edit Profile
+        </a>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="card shadow-sm mb-4">
-    <div class="card-header bg-white">
-      <h5 class="mb-0">📝 Recent API Activity</h5>
-    </div>
-    <div class="card-body p-0">
+<!-- Recent Activity -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header border-0">
+        <div class="d-flex justify-content-between align-items-center">
+          <h3 class="card-title">
+            <i class="fas fa-history mr-2"></i>
+            Recent API Activity
+          </h3>
+          <a href="{{ url_for('requestlog.index_view') }}" class="btn btn-sm btn-outline-primary">
+            View All <i class="fas fa-arrow-right ml-1"></i>
+          </a>
+        </div>
+      </div>
       {% if recent_logs %}
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead class="thead-light">
+      <div class="card-body table-responsive p-0">
+        <table class="table table-hover table-striped">
+          <thead>
             <tr>
-              <th>Time</th>
+              <th>Timestamp</th>
               <th>Method</th>
               <th>Endpoint</th>
               <th>User ID</th>
@@ -106,7 +201,10 @@
           <tbody>
             {% for log in recent_logs %}
             <tr>
-              <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+              <td>
+                <i class="fas fa-clock text-muted mr-1"></i>
+                {{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+              </td>
               <td>
                 {% if log.method == 'GET' %}
                   <span class="badge badge-success">{{ log.method }}</span>
@@ -114,21 +212,27 @@
                   <span class="badge badge-primary">{{ log.method }}</span>
                 {% elif log.method == 'DELETE' %}
                   <span class="badge badge-danger">{{ log.method }}</span>
-                {% elif log.method == 'PUT' %}
+                {% elif log.method == 'PUT' or log.method == 'PATCH' %}
                   <span class="badge badge-warning">{{ log.method }}</span>
                 {% else %}
                   <span class="badge badge-secondary">{{ log.method }}</span>
                 {% endif %}
               </td>
-              <td><code>{{ log.endpoint }}</code></td>
-              <td>{{ log.user_id or '-' }}</td>
+              <td><code class="text-dark">{{ log.endpoint }}</code></td>
+              <td>
+                {% if log.user_id %}
+                  <span class="badge badge-info">{{ log.user_id }}</span>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
               <td>
                 {% if log.status_code < 300 %}
-                  <span class="text-success font-weight-bold">{{ log.status_code }}</span>
+                  <span class="text-success"><i class="fas fa-check-circle mr-1"></i>{{ log.status_code }}</span>
                 {% elif log.status_code < 500 %}
-                  <span class="text-warning font-weight-bold">{{ log.status_code }}</span>
+                  <span class="text-warning"><i class="fas fa-exclamation-circle mr-1"></i>{{ log.status_code }}</span>
                 {% else %}
-                  <span class="text-danger font-weight-bold">{{ log.status_code }}</span>
+                  <span class="text-danger"><i class="fas fa-times-circle mr-1"></i>{{ log.status_code }}</span>
                 {% endif %}
               </td>
             </tr>
@@ -137,8 +241,11 @@
         </table>
       </div>
       {% else %}
-      <div class="p-3">
-        <p class="text-muted mb-0">No API activity yet.</p>
+      <div class="card-body">
+        <div class="text-center text-muted py-4">
+          <i class="fas fa-inbox fa-3x mb-3"></i>
+          <p class="mb-0">No API activity recorded yet.</p>
+        </div>
       </div>
       {% endif %}
     </div>
@@ -149,6 +256,11 @@
 <script>
   // API Usage Chart
   const ctx = document.getElementById('usageChart').getContext('2d');
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+  gradient.addColorStop(0, 'rgba(0, 123, 255, 0.4)');
+  gradient.addColorStop(1, 'rgba(0, 123, 255, 0.0)');
+
   new Chart(ctx, {
     type: 'line',
     data: {
@@ -157,28 +269,70 @@
         label: 'API Requests',
         data: {{ chart_values | tojson }},
         borderColor: '#007bff',
-        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+        backgroundColor: gradient,
         fill: true,
-        tension: 0.3,
+        tension: 0.4,
         pointBackgroundColor: '#007bff',
-        pointRadius: 5,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
       }]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
-        legend: { display: false }
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          titleFont: { size: 13 },
+          bodyFont: { size: 12 },
+          padding: 10,
+          cornerRadius: 4,
+        }
       },
       scales: {
         y: {
           beginAtZero: true,
-          ticks: { stepSize: 1 }
+          ticks: {
+            stepSize: 1,
+            font: { size: 11 }
+          },
+          grid: {
+            color: 'rgba(0,0,0,0.05)'
+          }
+        },
+        x: {
+          ticks: {
+            font: { size: 10 },
+            maxRotation: 45
+          },
+          grid: {
+            display: false
+          }
         }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index'
       }
     }
   });
 
   // Server time
-  document.getElementById('server-time').textContent = new Date().toLocaleString();
+  function updateTime() {
+    const now = new Date();
+    document.getElementById('server-time').textContent = now.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  }
+  updateTime();
+  setInterval(updateTime, 1000);
 </script>
 {% endblock %}

@@ -4,31 +4,36 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin Login - SoundFood</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .login-card {
-      max-width: 400px;
-      width: 100%;
-    }
-  </style>
+  <!-- Login Page Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
-  <div class="container">
-    <div class="card login-card shadow">
-      <div class="card-body p-4">
-        <h3 class="card-title text-center mb-4">🍽️ SoundFood Admin</h3>
+  <div class="login-box">
+    <div class="login-logo">
+      <a href="#">
+        <img src="https://soundfood.it/img/logo-soundfood.png" alt="SoundFood" class="logo-icon" style="height: 50px; margin-right: 10px;">
+        <span><b>Sound</b>Food</span>
+      </a>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="login-card-header">
+          <h4><i class="fas fa-sign-in-alt me-2"></i>Admin Login</h4>
+          <p>Sign in to start your session</p>
+        </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
               <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-{% if category == 'danger' or category == 'error' %}exclamation-circle{% else %}check-circle{% endif %} me-2"></i>
                 {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
@@ -38,21 +43,36 @@
 
         <form method="post">
           {{ form.hidden_tag() }}
-          <div class="mb-3">
-            {{ form.username.label(class="form-label") }}
-            {{ form.username(class="form-control", placeholder="Enter username") }}
+
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-user"></i>
+            </span>
+            {{ form.username(class="form-control", placeholder="Username") }}
           </div>
-          <div class="mb-3">
-            {{ form.password.label(class="form-label") }}
-            {{ form.password(class="form-control", placeholder="Enter password") }}
+
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-lock"></i>
+            </span>
+            {{ form.password(class="form-control", placeholder="Password") }}
           </div>
-          <div class="d-grid">
-            {{ form.submit(class="btn btn-primary") }}
+
+          <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-sign-in-alt me-2"></i>Sign In
+            </button>
           </div>
         </form>
+
+        <div class="login-footer">
+          <i class="fas fa-shield-alt me-1"></i>
+          Secure Admin Area
+        </div>
       </div>
     </div>
   </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

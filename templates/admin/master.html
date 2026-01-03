@@ -1,0 +1,169 @@
+{% extends 'admin/base.html' %}
+
+{% block head_css %}
+{{ super() }}
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<!-- AdminLTE Custom Theme -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/adminlte.css') }}">
+{% endblock %}
+
+{% block page_body %}
+<div class="adminlte-wrapper">
+  <!-- Main Sidebar -->
+  <aside class="main-sidebar" id="main-sidebar">
+    <!-- Brand Logo -->
+    <a href="{{ admin_view.admin.url }}" class="brand-link">
+      <img src="https://soundfood.it/img/logo-soundfood.png" alt="SoundFood" class="brand-image" style="height: 33px; margin-right: 8px;">
+      <span class="brand-text">SoundFood</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- User Panel -->
+      {% if current_user.is_authenticated %}
+      <div class="user-panel">
+        <div class="image">{{ current_user.username[0]|upper }}</div>
+        <div class="info">
+          <div>{{ current_user.username }}</div>
+          {% if current_user.is_admin %}
+            <span class="badge badge-danger">Admin</span>
+          {% elif current_user.is_manager %}
+            <span class="badge badge-warning">Manager</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Sidebar Menu -->
+      <nav>
+        <ul class="nav-sidebar">
+          <li class="nav-header">MAIN NAVIGATION</li>
+          <li class="nav-item">
+            <a href="{{ admin_view.admin.url }}" class="nav-link{% if admin_view.name == 'Home' %} active{% endif %}">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>Dashboard</p>
+            </a>
+          </li>
+
+          <li class="nav-header">DATA MANAGEMENT</li>
+          {% for view in admin_view.admin._views %}
+            {% if view.category is none and view.name not in ['Home', 'Profile'] %}
+              <li class="nav-item">
+                <a href="{{ view.url }}" class="nav-link{% if admin_view.name == view.name %} active{% endif %}">
+                  <i class="nav-icon fas fa-{% if view.name == 'Users' %}users{% elif view.name == 'Menus' %}book-open{% elif view.name == 'Dishes' %}utensils{% elif view.name == 'Request Logs' %}history{% else %}circle{% endif %}"></i>
+                  <p>{{ view.name }}</p>
+                </a>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          <!-- Attributes submenu -->
+          {% set has_attributes = [] %}
+          {% for view in admin_view.admin._views %}
+            {% if view.category == 'Attributes' %}
+              {% set _ = has_attributes.append(1) %}
+            {% endif %}
+          {% endfor %}
+
+          {% if has_attributes %}
+          <li class="nav-item{% if admin_view.category == 'Attributes' %} menu-open{% endif %}">
+            <a href="#" class="nav-link" onclick="toggleTreeview(this, event)">
+              <i class="nav-icon fas fa-tags"></i>
+              <p>
+                Attributes
+                <i class="right fas fa-angle-right"></i>
+              </p>
+            </a>
+            <ul class="nav-treeview">
+              {% for view in admin_view.admin._views %}
+                {% if view.category == 'Attributes' %}
+                  <li class="nav-item">
+                    <a href="{{ view.url }}" class="nav-link{% if admin_view.name == view.name %} active{% endif %}">
+                      <i class="nav-icon fas fa-{% if view.name == 'Emotions' %}smile{% elif view.name == 'Textures' %}layer-group{% elif view.name == 'Shapes' %}shapes{% else %}circle{% endif %}"></i>
+                      <p>{{ view.name }}</p>
+                    </a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </li>
+          {% endif %}
+
+          <li class="nav-header">ACCOUNT</li>
+          <li class="nav-item">
+            <a href="{{ url_for('profile.index') }}" class="nav-link{% if admin_view.name == 'Profile' %} active{% endif %}">
+              <i class="nav-icon fas fa-user-cog"></i>
+              <p>Profile</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('admin_auth.logout') }}" class="nav-link">
+              <i class="nav-icon fas fa-sign-out-alt"></i>
+              <p>Logout</p>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+    <!-- Main Header -->
+    <nav class="main-header">
+      <div class="nav-left">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+      <div class="nav-right">
+        <a href="{{ url_for('profile.index') }}" class="nav-link" title="Profile">
+          <i class="fas fa-user-circle"></i>
+        </a>
+        <a href="{{ url_for('admin_auth.logout') }}" class="nav-link" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Content Header -->
+    <div class="content-header">
+      <div class="row align-items-center">
+        <div class="col-auto">
+          <h1>{{ admin_view.name }}</h1>
+        </div>
+        <div class="col-auto ms-auto">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{{ admin_view.admin.url }}">Home</a></li>
+              {% if admin_view.category %}
+              <li class="breadcrumb-item">{{ admin_view.category }}</li>
+              {% endif %}
+              <li class="breadcrumb-item active">{{ admin_view.name }}</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <section class="main-content">
+      {% block body %}{% endblock %}
+    </section>
+
+    <!-- Main Footer -->
+    <footer class="main-footer">
+      <div class="float-right d-none d-sm-inline">
+        Flask-Admin + AdminLTE Style
+      </div>
+      <strong>© 2024-{{ "now"|string|truncate(4, True, '') }} <a href="#">SoundFood</a>.</strong> All rights reserved.
+    </footer>
+  </div>
+</div>
+
+<!-- AdminLTE Custom Scripts -->
+<script src="{{ url_for('static', filename='js/adminlte.js') }}"></script>
+{% endblock %}

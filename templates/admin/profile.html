@@ -1,93 +1,167 @@
 {% extends 'admin/master.html' %}
 {% block body %}
-<div class="container py-4">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-header text-center bg-primary text-white">
-          <div class="my-2">
-            <span style="font-size: 3rem;">👤</span>
+<div class="row">
+  <!-- Profile Card - Sidebar -->
+  <div class="col-xl-4 col-lg-5 col-md-12 mb-4">
+    <div class="card card-primary card-outline">
+      <div class="card-body text-center py-4">
+        <div class="profile-user-img-container mb-3">
+          <div class="profile-user-img" style="width: 120px; height: 120px; background: linear-gradient(135deg, #007bff, #0056b3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 3rem; color: white; font-weight: 600; box-shadow: 0 4px 12px rgba(0,123,255,.3);">
+            {{ current_user.username[0]|upper }}
           </div>
-          <h4 class="mb-1">{{ current_user.username }}</h4>
-          <small>
-            {% if current_user.is_admin %}
-              Amministratore
-            {% elif current_user.is_manager %}
-              Manager
-            {% else %}
-              Utente
-            {% endif %}
-          </small>
         </div>
-        <div class="card-body">
-          {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-              {% for category, message in messages %}
-                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                  {{ message }}
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-              {% endfor %}
-            {% endif %}
-          {% endwith %}
-
-          <form method="post">
-            {{ form.hidden_tag() }}
-
-            <h6 class="text-muted mb-3">📧 Email</h6>
-            <div class="mb-3">
-              {{ form.email.label(class="form-label") }}
-              {{ form.email(class="form-control", placeholder="La tua email") }}
-              {% if form.email.errors %}
-                {% for error in form.email.errors %}
-                  <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
-              {% endif %}
-              <div class="form-text">Inserisci il tuo indirizzo email per ricevere notifiche.</div>
-            </div>
-
-            <hr class="my-4">
-            <h6 class="text-muted mb-3">🔐 Cambia Password</h6>
-
-            <div class="mb-3">
-              {{ form.current_password.label(class="form-label") }}
-              {{ form.current_password(class="form-control", placeholder="Password attuale") }}
-              {% if form.current_password.errors %}
-                {% for error in form.current_password.errors %}
-                  <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
-              {% endif %}
-              <div class="form-text">Richiesta per confermare le modifiche.</div>
-            </div>
-
-            <div class="mb-3">
-              {{ form.new_password.label(class="form-label") }}
-              {{ form.new_password(class="form-control", placeholder="Nuova password (opzionale)") }}
-              {% if form.new_password.errors %}
-                {% for error in form.new_password.errors %}
-                  <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
-              {% endif %}
-              <div class="form-text">Lascia vuoto se non vuoi cambiare la password. Minimo 8 caratteri.</div>
-            </div>
-
-            <div class="mb-4">
-              {{ form.confirm_password.label(class="form-label") }}
-              {{ form.confirm_password(class="form-control", placeholder="Conferma nuova password") }}
-              {% if form.confirm_password.errors %}
-                {% for error in form.confirm_password.errors %}
-                  <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
-              {% endif %}
-            </div>
-
-            <div class="d-grid">
-              {{ form.submit(class="btn btn-primary") }}
-            </div>
-          </form>
-        </div>
+        <h3 class="profile-username mb-2">{{ current_user.username }}</h3>
+        <p class="text-muted mb-3">
+          {% if current_user.is_admin %}
+            <span class="badge badge-danger"><i class="fas fa-shield-alt mr-1"></i>Amministratore</span>
+          {% elif current_user.is_manager %}
+            <span class="badge badge-warning"><i class="fas fa-user-tie mr-1"></i>Manager</span>
+          {% else %}
+            <span class="badge badge-secondary"><i class="fas fa-user mr-1"></i>Utente</span>
+          {% endif %}
+        </p>
+        <hr>
+        <ul class="list-group list-group-flush text-left">
+          <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+            <span><i class="fas fa-user text-primary mr-2"></i>Username</span>
+            <strong>{{ current_user.username }}</strong>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+            <span><i class="fas fa-envelope text-primary mr-2"></i>Email</span>
+            <strong>{{ current_user.email or 'Non impostata' }}</strong>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+            <span><i class="fas fa-calendar text-primary mr-2"></i>Membro dal</span>
+            <strong>{{ current_user.created_at.strftime('%d/%m/%Y') if current_user.created_at else 'N/A' }}</strong>
+          </li>
+        </ul>
       </div>
     </div>
+  </div>
+
+  <!-- Edit Form - Main Content -->
+  <div class="col-xl-8 col-lg-7 col-md-12">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+            <i class="fas fa-{% if category == 'error' %}exclamation-circle{% elif category == 'success' %}check-circle{% else %}info-circle{% endif %} mr-2"></i>
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="post">
+      {{ form.hidden_tag() }}
+
+      <!-- Email Section -->
+      <div class="card card-primary card-outline mb-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-envelope mr-2"></i>Informazioni di Contatto
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                {{ form.email.label(class="form-label font-weight-bold") }}
+                {{ form.email(class="form-control form-control-lg", placeholder="esempio@email.com") }}
+                {% if form.email.errors %}
+                  {% for error in form.email.errors %}
+                    <div class="text-danger small mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+                <small class="form-text text-muted">Inserisci il tuo indirizzo email per ricevere notifiche e comunicazioni.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Password Section -->
+      <div class="card card-warning card-outline mb-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-lock mr-2"></i>Sicurezza - Cambia Password
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-12 mb-3">
+              <div class="form-group mb-0">
+                {{ form.current_password.label(class="form-label font-weight-bold") }}
+                <div class="input-group input-group-lg">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-key"></i></span>
+                  </div>
+                  {{ form.current_password(class="form-control", placeholder="Inserisci la password attuale") }}
+                </div>
+                {% if form.current_password.errors %}
+                  {% for error in form.current_password.errors %}
+                    <div class="text-danger small mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+                <small class="form-text text-muted">Richiesta per confermare qualsiasi modifica al profilo.</small>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <div class="row">
+            <div class="col-lg-6 col-md-12 mb-3">
+              <div class="form-group mb-0">
+                {{ form.new_password.label(class="form-label font-weight-bold") }}
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                  </div>
+                  {{ form.new_password(class="form-control", placeholder="Nuova password") }}
+                </div>
+                {% if form.new_password.errors %}
+                  {% for error in form.new_password.errors %}
+                    <div class="text-danger small mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+                <small class="form-text text-muted">Lascia vuoto se non vuoi cambiare. Min. 8 caratteri.</small>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-12 mb-3">
+              <div class="form-group mb-0">
+                {{ form.confirm_password.label(class="form-label font-weight-bold") }}
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                  </div>
+                  {{ form.confirm_password(class="form-control", placeholder="Conferma password") }}
+                </div>
+                {% if form.confirm_password.errors %}
+                  {% for error in form.confirm_password.errors %}
+                    <div class="text-danger small mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="card">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <span class="text-muted">
+            <i class="fas fa-info-circle mr-1"></i>
+            Assicurati di inserire la password attuale per salvare le modifiche.
+          </span>
+          <button type="submit" class="btn btn-primary btn-lg px-5">
+            <i class="fas fa-save mr-2"></i>Salva Modifiche
+          </button>
+        </div>
+      </div>
+    </form>
   </div>
 </div>
 {% endblock %}

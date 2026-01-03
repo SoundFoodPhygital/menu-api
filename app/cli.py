@@ -112,16 +112,16 @@ def init_cli(app: Flask):
         ]
 
         for name in emotions:
-            if not Emotion.query.filter_by(name=name).first():
-                db.session.add(Emotion(name=name))
+            if not Emotion.query.filter_by(description=name).first():
+                db.session.add(Emotion(description=name))
 
         for name in textures:
-            if not Texture.query.filter_by(name=name).first():
-                db.session.add(Texture(name=name))
+            if not Texture.query.filter_by(description=name).first():
+                db.session.add(Texture(description=name))
 
         for name in shapes:
-            if not Shape.query.filter_by(name=name).first():
-                db.session.add(Shape(name=name))
+            if not Shape.query.filter_by(description=name).first():
+                db.session.add(Shape(description=name))
 
         db.session.commit()
         click.echo("✓ Attributes seeded successfully.")

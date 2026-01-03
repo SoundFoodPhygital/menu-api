@@ -5,7 +5,7 @@ from __future__ import annotations
 import typing as tp
 
 from flask_login import UserMixin
-from sqlalchemy import Integer, String
+from sqlalchemy import Boolean, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -24,8 +24,8 @@ class User(db.Model, UserMixin):
     username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     email: Mapped[str | None] = mapped_column(String, unique=True, nullable=True)
     password_hash: Mapped[str] = mapped_column(String, nullable=False)
-    is_admin: Mapped[bool] = mapped_column(Integer, nullable=False, default=0)
-    is_manager: Mapped[bool] = mapped_column(Integer, nullable=False, default=0)
+    is_admin: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    is_manager: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     menus: Mapped[list[Menu]] = relationship(back_populates="owner")
 
     def set_password(self, password: str) -> None:

@@ -1,6 +1,9 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.11-slim AS base
+# -------------------------------------------
+# Production stage
+# -------------------------------------------
+FROM python:3.11-slim AS production
 
 # Prevent Python from writing pyc files and buffering stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -13,31 +16,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
-ENV POETRY_VERSION=1.8.2
-ENV POETRY_HOME=/opt/poetry
-ENV POETRY_VENV=/opt/poetry-venv
-ENV POETRY_CACHE_DIR=/opt/.cache
-
-RUN python -m venv $POETRY_VENV \
-    && $POETRY_VENV/bin/pip install -U pip setuptools \
-    && $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
-
-ENV PATH="${POETRY_VENV}/bin:${PATH}"
-
-# Copy dependency files
-COPY pyproject.toml poetry.lock* ./
-
-# Install dependencies (without dev dependencies)
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --no-root --only main
-
-# -------------------------------------------
-# Production stage
-# -------------------------------------------
-FROM base AS production
-
-WORKDIR /app
+# Copy requirements and install dependencies
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Create non-root user for security
 RUN adduser --disabled-password --gecos '' appuser
@@ -68,12 +49,22 @@ CMD ["python", "-m", "gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "ws
 # -------------------------------------------
 # Development stage
 # -------------------------------------------
-FROM base AS development
+FROM python:3.11-slim AS development
+
+# Prevent Python from writing pyc files and buffering stdout/stderr
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Install dev dependencies
-RUN poetry install --no-interaction --no-ansi --no-root
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install dependencies (includes dev deps in requirements.txt)
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .

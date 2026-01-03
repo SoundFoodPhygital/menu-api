@@ -83,17 +83,27 @@ class ManagerModelView(ModelView):
 class UserAdminView(SecureModelView):
     """Admin view for User model."""
 
-    column_list = ["id", "username", "email", "is_admin", "is_manager"]
+    column_list = [
+        "id",
+        "username",
+        "email",
+        "is_admin",
+        "is_manager",
+        "created_at",
+        "updated_at",
+    ]
     column_searchable_list = ["username", "email"]
     column_filters = ["is_admin", "is_manager"]
-    form_excluded_columns = ["password_hash", "menus"]
+    form_excluded_columns = ["password_hash", "menus", "created_at", "updated_at"]
 
 
 class MenuAdminView(SecureModelView):
     """Admin view for Menu model."""
 
-    column_list = ["id", "title", "description", "owner"]
-    column_searchable_list = ["title"]
+    column_list = ["id", "title", "description", "owner", "created_at", "updated_at"]
+    column_searchable_list = ["title", "description"]
+    column_default_sort = ("created_at", True)
+    form_excluded_columns = ["created_at", "updated_at"]
 
 
 class RequestLogAdminView(ManagerModelView):

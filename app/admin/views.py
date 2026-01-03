@@ -53,6 +53,7 @@ class SecureModelView(ModelView):
     """Base model view that requires admin authentication."""
 
     form_base_class = SecureForm
+    can_export = True
 
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin

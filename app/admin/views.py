@@ -80,8 +80,59 @@ class ManagerModelView(ModelView):
         return redirect(url_for("admin_auth.login", next=request.url))
 
 
-class UserAdminView(SecureModelView):
-    """Admin view for User model."""
+class ManagerEditableView(ModelView):
+    """Model view for managers - full CRUD access."""
+
+    form_base_class = SecureForm
+    can_create = True
+    can_edit = True
+    can_delete = True
+    can_view_details = True
+    can_export = True
+
+    def is_accessible(self):
+        return current_user.is_authenticated and (
+            current_user.is_admin or current_user.is_manager
+        )
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for("admin_auth.login", next=request.url))
+
+
+class ManagerReadOnlyView(ModelView):
+    """Model view for managers with read-only access (view list/details only)."""
+
+    form_base_class = SecureForm
+    can_create = False
+    can_edit = False
+    can_delete = False
+    can_export = True
+
+    def is_accessible(self):
+        return current_user.is_authenticated and (
+            current_user.is_admin or current_user.is_manager
+        )
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for("admin_auth.login", next=request.url))
+
+    def _handle_view(self, name, **kwargs):
+        """Override to allow admins to edit but managers only to view."""
+        if current_user.is_admin:
+            # Admins get full access
+            self.can_create = True
+            self.can_edit = True
+            self.can_delete = True
+        else:
+            # Managers get read-only access
+            self.can_create = False
+            self.can_edit = False
+            self.can_delete = False
+        return super()._handle_view(name, **kwargs)
+
+
+class UserAdminView(ManagerReadOnlyView):
+    """Admin view for User model - managers can view but not edit."""
 
     column_list = [
         "id",
@@ -96,9 +147,28 @@ class UserAdminView(SecureModelView):
     column_filters = ["is_admin", "is_manager"]
     form_excluded_columns = ["password_hash", "menus", "created_at", "updated_at"]
 
+    form_extra_fields = {
+        "password": PasswordField(
+            "Password",
+            validators=[
+                Optional(),
+                Length(min=8, message="La password deve avere almeno 8 caratteri"),
+            ],
+        )
+    }
 
-class MenuAdminView(SecureModelView):
-    """Admin view for Menu model."""
+    def on_model_change(self, form, model, is_created):
+        """Hash password before saving user."""
+        if form.password.data:
+            model.set_password(form.password.data)
+        elif is_created:
+            # Se stiamo creando un nuovo utente e non è stata fornita una password
+            raise ValueError("La password è obbligatoria per i nuovi utenti")
+        return super().on_model_change(form, model, is_created)
+
+
+class MenuAdminView(ManagerEditableView):
+    """Admin view for Menu model - managers have full CRUD access."""
 
     column_list = ["id", "title", "description", "owner", "created_at", "updated_at"]
     column_searchable_list = ["title", "description"]
@@ -225,11 +295,14 @@ def init_admin(app):
     admin = Admin(app, name="SoundFood Admin", index_view=MyAdminIndexView())
 
     # Add model views
+    # Users: Read-only for managers, full access for admins
     admin.add_view(UserAdminView(User, db.session, name="Users"))
+
+    # Menus, Dishes, Attributes: Full CRUD access for managers and admins
     admin.add_view(MenuAdminView(Menu, db.session, name="Menus"))
-    admin.add_view(SecureModelView(Dish, db.session, name="Dishes"))
+    admin.add_view(ManagerEditableView(Dish, db.session, name="Dishes"))
     admin.add_view(
-        SecureModelView(
+        ManagerEditableView(
             Emotion,
             db.session,
             name="Emotions",
@@ -237,7 +310,7 @@ def init_admin(app):
         )
     )
     admin.add_view(
-        SecureModelView(
+        ManagerEditableView(
             Texture,
             db.session,
             name="Textures",
@@ -245,14 +318,18 @@ def init_admin(app):
         )
     )
     admin.add_view(
-        SecureModelView(
+        ManagerEditableView(
             Shape,
             db.session,
             name="Shapes",
             category="Attributes",
         )
     )
+
+    # Request Logs: Read-only for both managers and admins
     admin.add_view(RequestLogAdminView(RequestLog, db.session, name="Request Logs"))
+
+    # Profile and logout available for both
     admin.add_view(ProfileView(name="Profile", endpoint="profile"))
     admin.add_link(MenuLink(name="Logout", url="/admin/logout"))
 
